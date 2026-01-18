@@ -1,5 +1,7 @@
 # canvas-downloader
 
+This project is no longer being maintained. Consider using <https://github.com/aik2mlj/canvas-downloader>, which is a maintained fork of the project with additional features.
+
 ## Description
 Downloads files from all courses in canvas.
 
