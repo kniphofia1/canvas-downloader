@@ -1,0 +1,16 @@
+.git
+.github
+.env
+.env.*
+!.env.example
+canvas-downloader.toml
+secrets
+.state
+log
+*.log
+target
+debug
+__pycache__
+*.py[cod]
+test-cred.json
+debug-folder
