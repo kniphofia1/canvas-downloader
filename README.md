@@ -5,6 +5,9 @@ This project is no longer being maintained. Consider using <https://github.com/a
 ## Description
 Downloads files from all courses in canvas.
 
+For the Fudan NAS deployment with SSO token refresh and automatic semester
+selection, see [README-token-refresh.md](README-token-refresh.md).
+
 ## Usage
 1. Create a credential json file, eg `cred.json`
 ```json
@@ -57,4 +60,3 @@ Options:
 - If it is not showing up as an executable
   - `chmod +x canvas-downloader`
   - This should make it executable
-
