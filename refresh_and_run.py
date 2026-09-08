@@ -725,8 +725,8 @@ def run_downloader(
         credentials = Path(directory) / "credentials.json"
         with credentials.open("x", encoding="utf-8") as handle:
             os.chmod(credentials, 0o600)
-            json.dump({"canvas_url": app_config.canvas_url,
-                       "canvas_token": app_config.canvas_token}, handle)
+            json.dump({"canvasUrl": app_config.canvas_url,
+                       "canvasToken": app_config.canvas_token}, handle)
         command = [str(options.binary), "-c", str(credentials), *args]
         return run_downloader_with_log(command, args, options)
 

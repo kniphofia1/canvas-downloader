@@ -21,8 +21,8 @@ class RefreshWrapperTests(unittest.TestCase):
                 captured.append(path)
                 self.assertEqual(path.stat().st_mode & 0o777, 0o600)
                 self.assertEqual(json.loads(path.read_text()), {
-                    "canvas_url": "https://canvas.invalid",
-                    "canvas_token": "test-only-token"})
+                    "canvasUrl": "https://canvas.invalid",
+                    "canvasToken": "test-only-token"})
                 self.assertNotIn("test-only-token", command)
                 self.assertEqual(command[-2:], ["-t", "29"])
                 return 0

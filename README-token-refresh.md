@@ -82,6 +82,9 @@ crontab -l
 
 The installed cron entry calls `run-nas-cron-sync.sh`, which writes wrapper logs
 to `sync-cron.log` and prevents overlapping runs when `flock` is available.
+Failures are retried up to three attempts with a 60-second delay; `pending`
+returns success and is not retried. Override with `CANVAS_RUN_RETRIES` and
+`CANVAS_RETRY_DELAY_SECONDS` if needed.
 
 If this directory is mounted elsewhere on the NAS, pass the actual project path:
 
@@ -133,6 +136,10 @@ expiration timestamp. A fixed timestamp takes precedence over
 ## Notes
 
 - Logs go to `sync.log` and Docker stdout. Token-like values are redacted.
+- The checked-in Rust CLI requires camelCase JSON credentials with `-c`.
+  The wrapper converts its refreshed TOML configuration to a temporary `0600`
+  JSON file inside a private directory, passes only its path, and removes it
+  when the downloader exits. Explicit credential-file overrides are rejected.
 - Per-run file update logs go to `log/*.md` by default.
 - Browser session state is stored in `.state/playwright-storage.json`.
 - The course manifest contains only term/course metadata and teacher names; it
