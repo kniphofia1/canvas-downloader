@@ -1,3 +1,4 @@
+import json
 import tempfile
 import unittest
 from pathlib import Path
@@ -8,6 +9,33 @@ from nas.semester import TargetSemesterPending
 
 
 class RefreshWrapperTests(unittest.TestCase):
+    def test_rust_cli_receives_private_json_credentials_and_cleanup(self):
+        with tempfile.TemporaryDirectory() as directory:
+            options = self.options(Path(directory))
+            options.config.write_text('canvas_url = "https://canvas.invalid"\n'
+                                      'canvas_token = "test-only-token"\n')
+            captured = []
+            def execute(command, _options):
+                self.assertEqual(command[1], "-c")
+                path = Path(command[2])
+                captured.append(path)
+                self.assertEqual(path.stat().st_mode & 0o777, 0o600)
+                self.assertEqual(json.loads(path.read_text()), {
+                    "canvas_url": "https://canvas.invalid",
+                    "canvas_token": "test-only-token"})
+                self.assertNotIn("test-only-token", command)
+                self.assertEqual(command[-2:], ["-t", "29"])
+                return 0
+            with patch.object(refresh_and_run, "run_downloader_command", side_effect=execute):
+                self.assertEqual(refresh_and_run.run_downloader(options, ["-t", "29"]), 0)
+            self.assertFalse(captured[0].exists())
+
+    def test_external_credential_arguments_are_rejected(self):
+        with tempfile.TemporaryDirectory() as directory:
+            for args in (["-c", "old.json"], ["--credential-file=old.json"], ["-cold.json"]):
+                with self.assertRaises(ValueError):
+                    refresh_and_run.run_downloader(self.options(Path(directory)), args)
+
     def options(self, root):
         return refresh_and_run.RuntimeOptions(
             config=root / "canvas-downloader.toml",

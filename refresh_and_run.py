@@ -9,6 +9,7 @@ import re
 import shlex
 import subprocess
 import sys
+import tempfile
 import time
 import tomllib
 from dataclasses import dataclass
@@ -714,7 +715,25 @@ def run_downloader(
     args = options.downloader_args if downloader_args is None else downloader_args
     if not args:
         args = shlex.split(os.getenv("CANVAS_DOWNLOADER_ARGS", ""))
-    command = [str(options.binary), *args]
+    # The checked-in Rust CLI requires -c with JSON credentials; the NAS SSO
+    # wrapper stores its refreshed token in TOML. Keep the adapter ephemeral.
+    if any(arg in ("-c", "--credential-file") or arg.startswith("--credential-file=")
+           or (arg.startswith("-c") and not arg.startswith("--")) for arg in args):
+        raise ValueError("Downloader credentials are managed by the refresh wrapper")
+    app_config = read_app_config(options.config)
+    with tempfile.TemporaryDirectory(prefix="canvas-credentials-") as directory:
+        credentials = Path(directory) / "credentials.json"
+        with credentials.open("x", encoding="utf-8") as handle:
+            os.chmod(credentials, 0o600)
+            json.dump({"canvas_url": app_config.canvas_url,
+                       "canvas_token": app_config.canvas_token}, handle)
+        command = [str(options.binary), "-c", str(credentials), *args]
+        return run_downloader_with_log(command, args, options)
+
+
+def run_downloader_with_log(
+    command: list[str], args: list[str], options: RuntimeOptions
+) -> int:
     logging.info("Running canvas-downloader: %s", " ".join(shlex.quote(part) for part in command))
 
     download_dir = downloader_download_dir(args)
