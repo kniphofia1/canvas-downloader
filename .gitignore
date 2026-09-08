@@ -2,6 +2,18 @@
 debug-folder
 test-cred.json
 
+# NAS deployment state and secrets
+canvas-downloader.toml
+.env
+.env.*
+!.env.example
+secrets/
+.state/
+log/
+*.log
+__pycache__/
+*.py[cod]
+
 # Created by https://www.toptal.com/developers/gitignore/api/rust,visualstudiocode,macos,windows,linux,vim
 # Edit at https://www.toptal.com/developers/gitignore?templates=rust,visualstudiocode,macos,windows,linux,vim
 

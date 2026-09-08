@@ -1,0 +1,33 @@
+services:
+  fudan-canvasdownloader:
+    build: .
+    container_name: fudan-canvasdownloader
+    working_dir: /data
+    entrypoint: ["python", "/data/refresh_and_run.py", "--binary", "/usr/local/bin/canvas-downloader"]
+    dns:
+      - 223.5.5.5
+      - 119.29.29.29
+    volumes:
+      - ./:/data
+      - /vol3/1000/kniplab/26-27秋学期:/downloads
+    environment:
+      TZ: Asia/Shanghai
+      FUDAN_USERNAME_FILE: /run/secrets/fudan_username
+      FUDAN_PASSWORD_FILE: /run/secrets/fudan_password
+      CANVAS_DOWNLOADER_AUTO_YES: "true"
+      CANVAS_TOKEN_PURPOSE: nas-canvas-downloader
+      CANVAS_TARGET_TERM_NAME: 2026-2027学年第一学期
+      CANVAS_COURSE_MANIFEST: /data/.state/2026-fall-courses.json
+      # Optional static ISO-like Canvas expiration value.
+      # CANVAS_TOKEN_EXPIRES_AT: "2026-07-31T23:59:59+08:00"
+    secrets:
+      - fudan_username
+      - fudan_password
+    command: ["--force-refresh-token", "--token-expires-after-days", "1", "--", "-n", "-d", "/downloads"]
+    restart: "no"
+
+secrets:
+  fudan_username:
+    file: ./secrets/fudan_username
+  fudan_password:
+    file: ./secrets/fudan_password
